@@ -15,9 +15,23 @@ class HTMLNode():
         if not self.props:
             return result_
         for key, value in self.props.items():
-            result_ += " " + key + "=" + value
+            result_ += " " + key + "=" + "\"" + value + "\""
         return result_
     
     def __repr__(self):
-        return f" tag: {self.tag}\n value: {self.value} \n props: \n {self.props_to_html()} \n children: {self.value}"
+        return f"HTMLNode({self.tag}, {self.value}, children: {self.children}, {self.props})"
     
+class LeafNode(HTMLNode):
+    def __init__(self, tag=None, value=None,  props=None):
+        super().__init__(tag, value, None, props)
+    
+    def to_html(self):
+        if self.value == None:
+            raise ValueError
+        if self.tag == None:
+            return self.value
+        result = f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+        return result
+    
+        def __repr__(self):
+            return f"LeafNode({self.tag}, {self.value}, {self.props})"
