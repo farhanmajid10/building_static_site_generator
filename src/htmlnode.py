@@ -1,4 +1,5 @@
 from textnode import TextNode, TextType
+from functools import reduce
 
 class HTMLNode():
     def __init__(self, tag=None, value=None, children=None, props=None):
@@ -33,5 +34,21 @@ class LeafNode(HTMLNode):
         result = f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
         return result
     
-        def __repr__(self):
-            return f"LeafNode({self.tag}, {self.value}, {self.props})"
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag,None,children,props)
+    
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("No Tags.")
+        for value in self.children:
+            if not value:
+                raise ValueError("No value in child.")
+
+        result = "".join(child.to_html() for child in self.children)
+        return f"<{self.tag}{self.props_to_html()}>{result}</{self.tag}>"           
+
+    def __repr__(self):
+        return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
