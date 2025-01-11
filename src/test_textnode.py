@@ -9,8 +9,8 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(node,node2)
     
     def test_type_equality(self):
-        node = TextNode("Test text", TextType.NORMAL)
-        node2 = TextNode("test text", TextType.NORMAL)
+        node = TextNode("Test text", TextType.TEXT)
+        node2 = TextNode("test text", TextType.TEXT)
         self.assertEqual(node.text_type.value, node2.text_type.value)
         
     def test_text_equality(self):
@@ -25,7 +25,7 @@ class TestTextNode(unittest.TestCase):
     
     def test_text_inequality(self):
         node = TextNode("some", TextType.CODE)
-        node2 = TextNode("sot", TextType.IMAGES)
+        node2 = TextNode("sot", TextType.IMAGE)
         self.assertNotEqual(node.text, node2.text)
     
     def text_type_inequality(self):

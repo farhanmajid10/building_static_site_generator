@@ -27,6 +27,13 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, None, props)
     
     def to_html(self):
+        if self.tag == "img":
+            if not self.props or "src" not in self.props or "alt" not in self.props:
+                raise ValueError("Image tags require 'src' and 'alt' properties")
+            return f"<{self.tag}{self.props_to_html}/>"
+        if self.tag == "a":
+            if not self.props or "href" not in self.props:
+                raise ValueError("Anchor tags require 'href' property")
         if self.value == None:
             raise ValueError
         if self.tag == None:
@@ -43,9 +50,8 @@ class ParentNode(HTMLNode):
     def to_html(self):
         if self.tag == None:
             raise ValueError("No Tags.")
-        for value in self.children:
-            if not value:
-                raise ValueError("No value in child.")
+        if self.children is None:
+            raise ValueError("Invalid HTML: no children")
 
         result = "".join(child.to_html() for child in self.children)
         return f"<{self.tag}{self.props_to_html()}>{result}</{self.tag}>"           
