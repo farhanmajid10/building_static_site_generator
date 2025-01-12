@@ -23,3 +23,26 @@ def text_node_to_html_node(text_node):
             return result
         case _: 
             raise Exception("Texttype wrong.")
+        
+def split_nodes_delimiter(old_nodes, delimeter,text_type):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+        chunk = node.text.split(f"{delimeter}")
+        if len(chunk) == 1:
+            new_nodes.append(TextNode(chunk[0],TextType.TEXT))
+            continue
+        if len(chunk) % 2 == 0:
+            raise Exception("Invalid markdown, formatted section not closed")
+        for i in range(len(chunk)):
+            if chunk[i] == "":
+                continue
+            if i % 2 == 0:
+                temp = TextNode(chunk[i], TextType.TEXT)
+                new_nodes.append(temp)
+            else:
+                temp = TextNode(chunk[i], text_type)
+                new_nodes.append(temp)
+    return new_nodes
