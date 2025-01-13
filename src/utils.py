@@ -1,5 +1,6 @@
 from textnode import TextType, TextNode
 from htmlnode import HTMLNode, ParentNode, LeafNode
+import re
 
 def text_node_to_html_node(text_node):
     match (text_node.text_type):
@@ -45,4 +46,70 @@ def split_nodes_delimiter(old_nodes, delimeter,text_type):
             else:
                 temp = TextNode(chunk[i], text_type)
                 new_nodes.append(temp)
+    return new_nodes
+
+def extract_markdown_images(text):
+    matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return matches
+
+def extract_markdown_links(text):
+    matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return matches
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+        img_list = extract_markdown_images(node.text)
+        if len(img_list) == 0:
+            new_nodes.append(node)
+        if len(img_list) > 0:
+            remaining = node.text
+            for img in img_list:
+                alt_text, url = img
+                full_img = f"![{alt_text}]({url})"
+                temp = remaining.split(full_img,1)
+                if temp[0]:
+                    new_node = TextNode(temp[0],TextType.TEXT)
+                    new_nodes.append(new_node)
+
+                new_node = TextNode(alt_text,TextType.IMAGE,url)
+                new_nodes.append(new_node)
+                if len(temp) > 1:
+                    remaining = temp[1]
+                else:
+                    remaining = ""
+            if remaining:
+                new_nodes.append(TextNode(remaining, TextType.TEXT))
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+        img_list = extract_markdown_links(node.text)
+        if len(img_list) == 0:
+            new_nodes.append(node)
+        if len(img_list) > 0:
+            remaining = node.text
+            for img in img_list:
+                text, url = img
+                full_img = f"[{text}]({url})"
+                temp = remaining.split(full_img,1)
+                if temp[0]:
+                    new_node = TextNode(temp[0],TextType.TEXT)
+                    new_nodes.append(new_node)
+
+                new_node = TextNode(text,TextType.LINK,url)
+                new_nodes.append(new_node)
+                if len(temp) > 1:
+                    remaining = temp[1]
+                else:
+                    remaining = ""
+            if remaining:
+                new_nodes.append(TextNode(remaining, TextType.TEXT))
     return new_nodes
