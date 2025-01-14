@@ -122,3 +122,13 @@ def text_to_textnodes(text):
     result = split_nodes_link(result)
     return result
 
+def markdown_to_blocks(markdown):
+    blocks = re.split(r"\n\n+",markdown)
+    # + means more of what came before.
+
+    result = []
+    for block in blocks:
+        cblock = block.strip()
+        if cblock:
+            result.append(cblock)
+    return result
