@@ -2,6 +2,14 @@ from textnode import TextType, TextNode
 from htmlnode import HTMLNode, ParentNode, LeafNode
 import re
 
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_olist = "ordered_list"
+block_type_ulist = "unordered_list"
+
+
 def text_node_to_html_node(text_node):
     match (text_node.text_type):
         case TextType.TEXT:
@@ -132,3 +140,45 @@ def markdown_to_blocks(markdown):
         if cblock:
             result.append(cblock)
     return result
+
+def block_to_block_type(block):
+    if block[0] == "#":
+        temp_block = block.lstrip("#")
+        num_of_hashes = len(block) - len(temp_block)
+        if num_of_hashes <= 6:    
+            if(block[num_of_hashes] == " "):
+                return block_type_heading
+    if block[0] == "`":
+        if block.startswith("```") and block.endswith("```"):
+            return block_type_code
+    if block.startswith("> "):
+        b_lines = block.split("\n")
+        counter = 0
+        for line in b_lines:
+            if(line.startswith("> ")):
+                counter += 1
+        if counter == len(b_lines):
+            return block_type_quote
+    if block.startswith("* ") or block.startswith("- "):
+        block_lines = block.split("\n")
+        counter = 0
+        for blck in block_lines:
+            if blck.startswith(block[0:2]):
+                counter += 1
+        if counter == len(block_lines):
+            return block_type_ulist
+    if block.startswith("1. "):
+        counter = 1
+        bl_lines = block.split("\n")
+        for blck in bl_lines:
+            if (". ") in blck:
+                temp_blck = blck.split(". ",1)#used maxsplit to only do the correct split.
+                if(len(temp_blck) != 2 or not temp_blck[0].isdigit()):
+                    return block_type_paragraph
+                if int(temp_blck[0]) != counter:
+                    return block_type_paragraph
+                counter += 1
+            else: 
+                return block_type_paragraph
+        return block_type_olist
+    return block_type_paragraph
